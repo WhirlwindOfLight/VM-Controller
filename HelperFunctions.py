@@ -1,5 +1,6 @@
-import pyudev
 from os import path
+
+import pyudev
 
 
 def EventStruct(event, value):

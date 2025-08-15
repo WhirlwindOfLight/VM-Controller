@@ -1,10 +1,12 @@
+import os
+from os import path
+
+import uinput
+from uinput import ev
+
 from RuntimeDir import RUNTIME_DIR
 from Keymap import Keymap, KeymapEvents
 from HelperFunctions import EventStruct, getDevPath
-from uinput import ev
-import uinput
-from os import path
-import os
 
 
 KEYBOARD_LINK = path.join(RUNTIME_DIR, "devices", "Keyboard")

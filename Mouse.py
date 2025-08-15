@@ -1,9 +1,11 @@
+import os
+from os import path
+
+import uinput
+from uinput import ev
+
 from RuntimeDir import RUNTIME_DIR
 from HelperFunctions import EventStruct, getDevPath
-from uinput import ev
-import uinput
-from os import path
-import os
 
 
 ABSMOUSE_LINK = path.join(RUNTIME_DIR, "devices", "AbsMouse")
