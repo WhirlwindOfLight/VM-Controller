@@ -12,6 +12,7 @@ def EventStruct(event, value):
 def getDevPath(name, vendorNo=None, prodNo=None):
     for device in pyudev.Context().list_devices(subsystem="input"):
         try:
+            assert device.parent is not None
             # Note: We have to search the parent for vendor, product, and name
             # because the devname is in a child of a main object,
             # and we need to be the child
@@ -29,4 +30,6 @@ def getDevPath(name, vendorNo=None, prodNo=None):
         except KeyError:
             continue
         except AttributeError:
+            continue
+        except AssertionError:
             continue
