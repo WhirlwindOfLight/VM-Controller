@@ -1,20 +1,26 @@
 from RuntimeDir import RUNTIME_DIR
 from Keymap import Keymap, KeymapEvents
-from HelperFunctions import *
-from uinput.ev import *
+from HelperFunctions import EventStruct, getDevPath
+from uinput import ev
 import uinput
 from os import path
 import os
 
-KEYBOARD_LINK = path.join(RUNTIME_DIR,"devices","Keyboard")
-KEYBOARD_MODKEYS = [KEY_LEFTCTRL, KEY_LEFTSHIFT, KEY_LEFTALT, KEY_LEFTMETA]
+
+KEYBOARD_LINK = path.join(RUNTIME_DIR, "devices", "Keyboard")
+KEYBOARD_MODKEYS = [
+    ev.KEY_LEFTCTRL, ev.KEY_LEFTSHIFT, ev.KEY_LEFTALT, ev.KEY_LEFTMETA
+]
+
 
 class Keyboard:
     def __init__(self, devName="vmController - Keyboard"):
         self.devName = devName
         self.modKeyStates = [False, False, False, False]
         self.regKey = None
-        self.virtKeyboard = uinput.Device(KeymapEvents() + KEYBOARD_MODKEYS, devName)
+        self.virtKeyboard = uinput.Device(
+            KeymapEvents() + KEYBOARD_MODKEYS, devName
+        )
         os.symlink(getDevPath(devName), KEYBOARD_LINK)
 
     def __enter__(self):
@@ -47,10 +53,12 @@ class Keyboard:
         return events
 
     def printEvents(self, modKeyStates, regKeyByte):
-        for ev in self.toEvents(modKeyStates, regKeyByte):
-            print("[{}] - ({}, {})".format(self.devName, ev["event"][1], ev["value"]))
+        for ev_obj in self.toEvents(modKeyStates, regKeyByte):
+            print("[{}] - ({}, {})".format(
+                self.devName, ev_obj["event"][1], ev_obj["value"])
+            )
 
     def processEvents(self, modKeyStates, regKeyByte):
-        for ev in self.toEvents(modKeyStates, regKeyByte):
-            self.virtKeyboard.emit(ev["event"], ev["value"], syn=False)
+        for ev_obj in self.toEvents(modKeyStates, regKeyByte):
+            self.virtKeyboard.emit(ev_obj["event"], ev_obj["value"], syn=False)
         self.virtKeyboard.syn()

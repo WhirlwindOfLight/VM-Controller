@@ -6,17 +6,22 @@ from RuntimeDir import initRuntimeDir
 from Keyboard import Keyboard
 from Mouse import Mouse
 
+
 listenAddr = "0.0.0.0"
 listenPort = 19509
+
 
 def intBytes(bytes):
     return int.from_bytes(bytes, "little", signed=True)
 
+
 def unsignedIntBytes(bytes):
     return int.from_bytes(bytes, "little")
 
+
 def readBit(byte):
     return bool(byte & 1)
+
 
 def emptyBuffer(conn):
     try:
@@ -26,6 +31,7 @@ def emptyBuffer(conn):
                 return
     except BlockingIOError:
         return
+
 
 def packetParser(conn):
     global myKeyboard
@@ -38,7 +44,7 @@ def packetParser(conn):
         return initBytes
 
     packetSize = unsignedIntBytes(initBytes)
-    packetSize -= 1 # Ignore the SigByte
+    packetSize -= 1  # Ignore the SigByte
     if packetSize < 1:
         print("Err: Empty Packet Recieved!")
         emptyBuffer(conn)
@@ -88,6 +94,7 @@ def packetParser(conn):
         emptyBuffer(conn)
         return
 
+
 def connectionHandler(conn, connections):
     while True:
         if packetParser(conn) == b'':
@@ -97,9 +104,10 @@ def connectionHandler(conn, connections):
     conn.close()
     connections.pop(conn)
 
+
 initRuntimeDir()
-with Keyboard() as myKeyboard, Mouse() as myMouse, socket.socket(socket.AF_INET,socket.SOCK_STREAM) as s:
-    s.bind((listenAddr,listenPort))
+with Keyboard() as myKeyboard, Mouse() as myMouse, socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.bind((listenAddr, listenPort))
     s.listen()
     print("vmController - TCP Server Started!")
     connections = {}
@@ -111,7 +119,7 @@ with Keyboard() as myKeyboard, Mouse() as myMouse, socket.socket(socket.AF_INET,
             connections[conn] = client_addr
             myThread = Thread(
                 target=connectionHandler,
-                args=(conn,connections,)
+                args=(conn, connections,)
             )
             myThread.start()
             threads.append(myThread)

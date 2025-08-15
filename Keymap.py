@@ -1,77 +1,78 @@
-from uinput.ev import *
+from uinput import ev
 
 val = 0x04
 myMap = {}
 
-#a-z is 0x04-0x1D
+# a-z is 0x04-0x1D
 for key in [
-    KEY_A, KEY_B, KEY_C, KEY_D, KEY_E,
-    KEY_F, KEY_G, KEY_H, KEY_I, KEY_J,
-    KEY_K, KEY_L, KEY_M, KEY_N, KEY_O,
-    KEY_P, KEY_Q, KEY_R, KEY_S, KEY_T,
-    KEY_U, KEY_V, KEY_W, KEY_X, KEY_Y,
-    KEY_Z
+    ev.KEY_A, ev.KEY_B, ev.KEY_C, ev.KEY_D, ev.KEY_E,
+    ev.KEY_F, ev.KEY_G, ev.KEY_H, ev.KEY_I, ev.KEY_J,
+    ev.KEY_K, ev.KEY_L, ev.KEY_M, ev.KEY_N, ev.KEY_O,
+    ev.KEY_P, ev.KEY_Q, ev.KEY_R, ev.KEY_S, ev.KEY_T,
+    ev.KEY_U, ev.KEY_V, ev.KEY_W, ev.KEY_X, ev.KEY_Y,
+    ev.KEY_Z
 ]:
     myMap[val] = key
     val += 1
-#val should now be 0x1E
+# val should now be 0x1E
 
-#1-9 + 0 is 0x1E-0x27
-#The key codes are also in order, so a regular for loop can be used
-for keyNum in range(KEY_1[1], KEY_0[1] + 1):
+# 1-9 + 0 is 0x1E-0x27
+# The key codes are also in order, so a regular for loop can be used
+for keyNum in range(ev.KEY_1[1], ev.KEY_0[1] + 1):
     key = (0x01, keyNum)
     myMap[val] = key
     val += 1
-#val should now be 0x28
+# val should now be 0x28
 
-#Special keys in 0x28-0x2C
+# Special keys in 0x28-0x2C
 for key in [
-    KEY_ENTER, KEY_ESC, KEY_BACKSPACE,
-    KEY_TAB, KEY_SPACE
+    ev.KEY_ENTER, ev.KEY_ESC, ev.KEY_BACKSPACE,
+    ev.KEY_TAB, ev.KEY_SPACE
 ]:
     myMap[val] = key
     val += 1
-#val should now be 0x2D
+# val should now be 0x2D
 
-#Symbols in 0x2D-0x31 and 0x33-0x38
+# Symbols in 0x2D-0x31 and 0x33-0x38
 for key in [
-    KEY_MINUS, KEY_EQUAL, KEY_LEFTBRACE,
-    KEY_RIGHTBRACE, KEY_BACKSLASH
+    ev.KEY_MINUS, ev.KEY_EQUAL, ev.KEY_LEFTBRACE,
+    ev.KEY_RIGHTBRACE, ev.KEY_BACKSLASH
 ]:
     myMap[val] = key
     val += 1
-val += 1 #Skip 0x32
+val += 1  # Skip 0x32
 for key in [
-    KEY_SEMICOLON, KEY_APOSTROPHE, KEY_GRAVE,
-    KEY_COMMA, KEY_DOT, KEY_SLASH
+    ev.KEY_SEMICOLON, ev.KEY_APOSTROPHE, ev.KEY_GRAVE,
+    ev.KEY_COMMA, ev.KEY_DOT, ev.KEY_SLASH
 ]:
     myMap[val] = key
     val += 1
-#val should now be 0x39
-myMap[val] = KEY_CAPSLOCK
+# val should now be 0x39
+myMap[val] = ev.KEY_CAPSLOCK
 val += 1
 
-#Function keys in 0x3A-0x45
+# Function keys in 0x3A-0x45
 for key in [
-    KEY_F1, KEY_F2, KEY_F3, KEY_F4,
-    KEY_F5, KEY_F6, KEY_F7, KEY_F8,
-    KEY_F9, KEY_F10, KEY_F11, KEY_F12
+    ev.KEY_F1, ev.KEY_F2, ev.KEY_F3, ev.KEY_F4,
+    ev.KEY_F5, ev.KEY_F6, ev.KEY_F7, ev.KEY_F8,
+    ev.KEY_F9, ev.KEY_F10, ev.KEY_F11, ev.KEY_F12
 ]:
     myMap[val] = key
     val += 1
-#val should now be 0x46
+# val should now be 0x46
 
-#Special keys in 0x46-0x53
-#KEY_SYSRQ is for [Print Screen] key
+# Special keys in 0x46-0x53
+# ev.KEY_SYSRQ is for [Print Screen] key
 for key in [
-    KEY_SYSRQ, KEY_SCROLLLOCK,
-    KEY_PAUSE, KEY_INSERT, KEY_HOME,
-    KEY_PAGEUP, KEY_DELETE, KEY_END,
-    KEY_PAGEDOWN, KEY_RIGHT, KEY_LEFT,
-    KEY_DOWN, KEY_UP, KEY_NUMLOCK
+    ev.KEY_SYSRQ, ev.KEY_SCROLLLOCK,
+    ev.KEY_PAUSE, ev.KEY_INSERT, ev.KEY_HOME,
+    ev.KEY_PAGEUP, ev.KEY_DELETE, ev.KEY_END,
+    ev.KEY_PAGEDOWN, ev.KEY_RIGHT, ev.KEY_LEFT,
+    ev.KEY_DOWN, ev.KEY_UP, ev.KEY_NUMLOCK
 ]:
     myMap[val] = key
     val += 1
+
 
 def Keymap(byte):
     if byte in myMap:
@@ -79,5 +80,6 @@ def Keymap(byte):
     else:
         return None
 
+
 def KeymapEvents():
-   return list(myMap.values())
+    return list(myMap.values())
