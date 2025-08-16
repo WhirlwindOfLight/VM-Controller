@@ -59,45 +59,46 @@ def packet_parser(conn: Connection) -> Optional[Literal[b""]]:
         return
 
     msg_type = conn.recv(1)
-    if msg_type == b'\x05':
-        # Keyboard Handler
-        num_msgs = packet_size // MSG_SIZE[msg_type]
-        for _ in range(num_msgs):
-            mod_key_byte = int_bytes(conn.recv(1))
-            mod_key_states: list[bool] = []
-            for _ in range(4):
-                mod_key_states.append(read_bit(mod_key_byte))
-                mod_key_byte >>= 1
-            reg_key_byte = usigned_int_bytes(conn.recv(1))
-            KEYBOARD.process_events(mod_key_states, reg_key_byte)
-    elif msg_type == b'\x06':
-        # RelMouse Handler
-        num_msgs = packet_size // MSG_SIZE[msg_type]
-        for _ in range(num_msgs):
-            buttons_byte = int_bytes(conn.recv(1))
-            button_states: list[bool] = []
-            for _ in range(3):
-                button_states.append(read_bit(buttons_byte))
-                buttons_byte >>= 1
-            rel_mouse_pos = (
-                int_bytes(conn.recv(1)),
-                int_bytes(conn.recv(1))
-            )
-            MOUSE.rel_process_events(button_states, rel_mouse_pos)
-    elif msg_type == b'\x07':
-        # AbsMouse Handler
-        num_msgs = packet_size // MSG_SIZE[msg_type]
-        for _ in range(num_msgs):
-            abs_mouse_pos = (
-                int_bytes(conn.recv(2)),
-                int_bytes(conn.recv(2))
-            )
-            wheel_movement = int_bytes(conn.recv(1))
-            MOUSE.abs_process_events(abs_mouse_pos, wheel_movement)
-    else:
-        print("Invalid SigByte: {}".format(msg_type))
-        empty_buffer(conn)
-        return
+    match msg_type:
+        case b'\x05':
+            # Keyboard Handler
+            num_msgs = packet_size // MSG_SIZE[msg_type]
+            for _ in range(num_msgs):
+                mod_key_byte = int_bytes(conn.recv(1))
+                mod_key_states: list[bool] = []
+                for _ in range(4):
+                    mod_key_states.append(read_bit(mod_key_byte))
+                    mod_key_byte >>= 1
+                reg_key_byte = usigned_int_bytes(conn.recv(1))
+                KEYBOARD.process_events(mod_key_states, reg_key_byte)
+        case b'\x06':
+            # RelMouse Handler
+            num_msgs = packet_size // MSG_SIZE[msg_type]
+            for _ in range(num_msgs):
+                buttons_byte = int_bytes(conn.recv(1))
+                button_states: list[bool] = []
+                for _ in range(3):
+                    button_states.append(read_bit(buttons_byte))
+                    buttons_byte >>= 1
+                rel_mouse_pos = (
+                    int_bytes(conn.recv(1)),
+                    int_bytes(conn.recv(1))
+                )
+                MOUSE.rel_process_events(button_states, rel_mouse_pos)
+        case b'\x07':
+            # AbsMouse Handler
+            num_msgs = packet_size // MSG_SIZE[msg_type]
+            for _ in range(num_msgs):
+                abs_mouse_pos = (
+                    int_bytes(conn.recv(2)),
+                    int_bytes(conn.recv(2))
+                )
+                wheel_movement = int_bytes(conn.recv(1))
+                MOUSE.abs_process_events(abs_mouse_pos, wheel_movement)
+        case _:
+            print("Invalid SigByte: {}".format(msg_type))
+            empty_buffer(conn)
+            return
 
 
 def connection_handler(conn: Connection, connections: ConnMap) -> None:
