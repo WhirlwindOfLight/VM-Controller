@@ -6,7 +6,7 @@ import uinput
 from uinput import ev
 
 from RuntimeDir import RUNTIME_DIR
-from HelperFunctions import EventStruct, Event, getDevPath
+from HelperFunctions import EventStruct, Event, get_dev_path
 
 
 type IntPair = tuple[int, int]
@@ -24,22 +24,22 @@ ABS_RANGE = (1, 32767, 0, 0)
 
 
 class Mouse:
-    def __init__(self, devName: str = "vmController - Mouse") -> None:
-        self.devName = devName
-        self.buttonStates = [False, False, False]
-        self.absMode = False  # False -> RelMouse; True -> AbsMouse
-        self.absPos = [1, 1]
-        self.virtAbsMouse = uinput.Device(
+    def __init__(self, dev_name: str = "vmController - Mouse") -> None:
+        self.dev_name = dev_name
+        self.button_states = [False, False, False]
+        self.abs_mode = False  # False -> RelMouse; True -> AbsMouse
+        self.abs_pos = [1, 1]
+        self.virt_abs_mouse = uinput.Device(
             events=(MOUSE_BUTTONS + MOUSE_WHEEL_EVENTS
                     + list(map(lambda x: x + ABS_RANGE, MOUSE_ABS_EVENTS))),
-            name=(devName + ABSMOUSE_SUFFIX)
+            name=(dev_name + ABSMOUSE_SUFFIX)
         )
-        self.virtRelMouse = uinput.Device(
+        self.virt_rel_mouse = uinput.Device(
             events=(MOUSE_BUTTONS + MOUSE_WHEEL_EVENTS + MOUSE_REL_EVENTS),
-            name=(devName + RELMOUSE_SUFFIX)
+            name=(dev_name + RELMOUSE_SUFFIX)
         )
-        os.symlink(getDevPath(devName + ABSMOUSE_SUFFIX), ABSMOUSE_LINK)
-        os.symlink(getDevPath(devName + RELMOUSE_SUFFIX), RELMOUSE_LINK)
+        os.symlink(get_dev_path(dev_name + ABSMOUSE_SUFFIX), ABSMOUSE_LINK)
+        os.symlink(get_dev_path(dev_name + RELMOUSE_SUFFIX), RELMOUSE_LINK)
 
     def __enter__(self) -> Self:
         return self
@@ -47,70 +47,79 @@ class Mouse:
     def __exit__(self, *_) -> bool:
         os.unlink(ABSMOUSE_LINK)
         os.unlink(RELMOUSE_LINK)
-        self.virtAbsMouse.destroy()
-        self.virtRelMouse.destroy()
+        self.virt_abs_mouse.destroy()
+        self.virt_rel_mouse.destroy()
         return False
 
-    def absToEvents(self, absMousePos: IntPair, wheelMovement: int) -> list[EventStruct]:  # noqa: E501
+    def abs_to_events(self, abs_mouse_pos: IntPair, wheel_movement: int) -> list[EventStruct]:  # noqa: E501
         events: list[EventStruct] = []
 
         for i in range(2):
-            if absMousePos[i] != 0 and absMousePos[i] != self.absPos[i]:
-                self.absMode = True
-                self.absPos[i] = absMousePos[i]
-                events.append(EventStruct(MOUSE_ABS_EVENTS[i], absMousePos[i]))
-        if wheelMovement != 0:
-            events.append(EventStruct(MOUSE_WHEEL_EVENTS[0], wheelMovement))
+            if abs_mouse_pos[i] != 0 and abs_mouse_pos[i] != self.abs_pos[i]:
+                self.abs_mode = True
+                self.abs_pos[i] = abs_mouse_pos[i]
+                events.append(
+                    EventStruct(MOUSE_ABS_EVENTS[i], abs_mouse_pos[i])
+                )
+        if wheel_movement != 0:
+            events.append(EventStruct(MOUSE_WHEEL_EVENTS[0], wheel_movement))
             events.append(
-                EventStruct(MOUSE_WHEEL_EVENTS[1], wheelMovement * HI_RES_MULT)
+                EventStruct(
+                    MOUSE_WHEEL_EVENTS[1],
+                    wheel_movement * HI_RES_MULT
+                )
             )
 
         return events
 
-    def relToEvents(self, buttonStates: list[bool], relMousePos: IntPair) -> list[EventStruct]:  # noqa: E501
+    def rel_to_events(self, button_states: list[bool], rel_mouse_pos: IntPair) -> list[EventStruct]:  # noqa: E501
         events: list[EventStruct] = []
 
-        if buttonStates != self.buttonStates:
-            stateNum = 0
+        if button_states != self.button_states:
+            state_num = 0
             for button in MOUSE_BUTTONS:
-                if buttonStates[stateNum] ^ self.buttonStates[stateNum]:
-                    events.append(EventStruct(button, buttonStates[stateNum]))
-                stateNum += 1
-            self.buttonStates = buttonStates
+                if button_states[state_num] ^ self.button_states[state_num]:
+                    events.append(
+                        EventStruct(button, button_states[state_num])
+                    )
+                state_num += 1
+            self.button_states = button_states
         for i in range(2):
-            if relMousePos[i] != 0:
-                self.absMode = False
-                events.append(EventStruct(MOUSE_REL_EVENTS[i], relMousePos[i]))
+            if rel_mouse_pos[i] != 0:
+                self.abs_mode = False
+                events.append(
+                    EventStruct(MOUSE_REL_EVENTS[i], rel_mouse_pos[i])
+                )
 
         return events
 
-    def printEvents(self, events: list[EventStruct]) -> None:
-        if self.absMode:
-            mouseName = self.devName + ABSMOUSE_SUFFIX
+    def print_events(self, events: list[EventStruct]) -> None:
+        if self.abs_mode:
+            mouse_name = self.dev_name + ABSMOUSE_SUFFIX
         else:
-            mouseName = self.devName + RELMOUSE_SUFFIX
+            mouse_name = self.dev_name + RELMOUSE_SUFFIX
         for ev_obj in events:
             print("[{}] - ({}, {})".format(
-                mouseName, ev_obj.event, ev_obj.value)
+                mouse_name, ev_obj.event, ev_obj.value)
             )
 
-    def processEvents(self, events: list[EventStruct]) -> None:
-        if self.absMode:
-            myVirtMouse = self.virtAbsMouse
+    def process_events(self, events: list[EventStruct]) -> None:
+        if self.abs_mode:
+            my_virt_mouse = self.virt_abs_mouse
         else:
-            myVirtMouse = self.virtRelMouse
+            my_virt_mouse = self.virt_rel_mouse
         for ev_obj in events:
-            myVirtMouse.emit(ev_obj.event, ev_obj.value, syn=False)
-        myVirtMouse.syn()
+            my_virt_mouse.emit(ev_obj.event, ev_obj.value, syn=False)
+        my_virt_mouse.syn()
 
-    def absPrintEvents(self, absMousePos: IntPair, wheelMovement: int) -> None:
-        self.printEvents(self.absToEvents(absMousePos, wheelMovement))
+    def abs_print_events(self, abs_mouse_pos: IntPair, wheel_movement: int) -> None:  # noqa: E501
+        self.print_events(self.abs_to_events(abs_mouse_pos, wheel_movement))
 
-    def relPrintEvents(self, buttonStates: list[bool], relMousePos: IntPair) -> None:  # noqa: E501
-        self.printEvents(self.relToEvents(buttonStates, relMousePos))
+    def rel_print_events(self, button_states: list[bool], rel_mouse_pos: IntPair) -> None:  # noqa: E501
+        self.print_events(self.rel_to_events(button_states, rel_mouse_pos))
 
-    def absProcessEvents(self, absMousePos: IntPair, wheelMovement: int) -> None:  # noqa: E501
-        self.processEvents(self.absToEvents(absMousePos, wheelMovement))
+    def abs_process_events(self, abs_mouse_pos: IntPair, wheelMovement: int) -> None:  # noqa: E501
+        self.process_events(self.abs_to_events(abs_mouse_pos, wheelMovement))
 
-    def relProcessEvents(self, buttonStates: list[bool], relMousePos: IntPair) -> None:  # noqa: E501
-        self.processEvents(self.relToEvents(buttonStates, relMousePos))
+    def rel_process_events(self, button_states: list[bool], rel_mouse_pos: IntPair) -> None:  # noqa: E501
+        self.process_events(self.rel_to_events(button_states, rel_mouse_pos))

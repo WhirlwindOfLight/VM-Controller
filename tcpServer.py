@@ -4,7 +4,7 @@ import socket
 from threading import Thread
 from typing import Optional, Literal
 
-from RuntimeDir import initRuntimeDir
+from RuntimeDir import init_runtime_dir
 from Keyboard import Keyboard
 from Mouse import Mouse
 
@@ -12,23 +12,29 @@ from Mouse import Mouse
 type Connection = socket.socket
 type ConnMap = dict[Connection, str]
 
-listenAddr = "0.0.0.0"
-listenPort = 19509
+LISTEN_ADDR = "0.0.0.0"
+LISTEN_PORT = 19509
+
+MSG_SIZE = {
+    b'\x05': 2,  # Keyboard
+    b'\x06': 3,  # RelMouse
+    b'\x07': 5   # AbsMouse
+}
 
 
-def intBytes(bytes: bytes) -> int:
+def int_bytes(bytes: bytes) -> int:
     return int.from_bytes(bytes, "little", signed=True)
 
 
-def unsignedIntBytes(bytes: bytes) -> int:
+def usigned_int_bytes(bytes: bytes) -> int:
     return int.from_bytes(bytes, "little")
 
 
-def readBit(byte: int) -> bool:
+def read_bit(byte: int) -> bool:
     return bool(byte & 1)
 
 
-def emptyBuffer(conn: Connection) -> None:
+def empty_buffer(conn: Connection) -> None:
     try:
         while True:
             bytes = conn.recv(1024, socket.MSG_DONTWAIT)
@@ -38,71 +44,65 @@ def emptyBuffer(conn: Connection) -> None:
         return
 
 
-def packetParser(conn: Connection) -> Optional[Literal[b""]]:
-    global myKeyboard
-    global myMouse
-
+def packet_parser(conn: Connection) -> Optional[Literal[b""]]:
     # Initial bytes need to be processed for an empty byte string
     # to detect a disconnected client
-    initBytes = conn.recv(4)
-    if initBytes == b'':
-        return initBytes
+    init_bytes = conn.recv(4)
+    if init_bytes == b'':
+        return init_bytes
 
-    packetSize = unsignedIntBytes(initBytes)
-    packetSize -= 1  # Ignore the SigByte
-    if packetSize < 1:
+    packet_size = usigned_int_bytes(init_bytes)
+    packet_size -= 1  # Ignore the SigByte
+    if packet_size < 1:
         print("Err: Empty Packet Recieved!")
-        emptyBuffer(conn)
+        empty_buffer(conn)
         return
 
-    msgType = conn.recv(1)
-    if msgType == b'\x05':
+    msg_type = conn.recv(1)
+    if msg_type == b'\x05':
         # Keyboard Handler
-        msgSize = 2
-        numMsgs = packetSize // msgSize
-        for i in range(numMsgs):
-            modKeyByte = intBytes(conn.recv(1))
-            modKeyStates: list[bool] = []
-            for i in range(4):
-                modKeyStates.append(readBit(modKeyByte))
-                modKeyByte >>= 1
-            regKeyByte = unsignedIntBytes(conn.recv(1))
-            myKeyboard.processEvents(modKeyStates, regKeyByte)
-    elif msgType == b'\x06':
+        num_msgs = packet_size // MSG_SIZE[msg_type]
+        for _ in range(num_msgs):
+            mod_key_byte = int_bytes(conn.recv(1))
+            mod_key_states: list[bool] = []
+            for _ in range(4):
+                mod_key_states.append(read_bit(mod_key_byte))
+                mod_key_byte >>= 1
+            reg_key_byte = usigned_int_bytes(conn.recv(1))
+            KEYBOARD.process_events(mod_key_states, reg_key_byte)
+    elif msg_type == b'\x06':
         # RelMouse Handler
-        msgSize = 3
-        numMsgs = packetSize // msgSize
-        for i in range(numMsgs):
-            buttonsByte = intBytes(conn.recv(1))
-            buttonStates: list[bool] = []
-            for i in range(3):
-                buttonStates.append(readBit(buttonsByte))
-                buttonsByte >>= 1
-            relMousePos = (
-                intBytes(conn.recv(1)),
-                intBytes(conn.recv(1))
+        num_msgs = packet_size // MSG_SIZE[msg_type]
+        for _ in range(num_msgs):
+            buttons_byte = int_bytes(conn.recv(1))
+            button_states: list[bool] = []
+            for _ in range(3):
+                button_states.append(read_bit(buttons_byte))
+                buttons_byte >>= 1
+            rel_mouse_pos = (
+                int_bytes(conn.recv(1)),
+                int_bytes(conn.recv(1))
             )
-            myMouse.relProcessEvents(buttonStates, relMousePos)
-    elif msgType == b'\x07':
+            MOUSE.rel_process_events(button_states, rel_mouse_pos)
+    elif msg_type == b'\x07':
         # AbsMouse Handler
-        msgSize = 5
-        numMsgs = packetSize // msgSize
-        for i in range(numMsgs):
-            absMousePos = (
-                intBytes(conn.recv(2)),
-                intBytes(conn.recv(2))
+        num_msgs = packet_size // MSG_SIZE[msg_type]
+        for _ in range(num_msgs):
+            abs_mouse_pos = (
+                int_bytes(conn.recv(2)),
+                int_bytes(conn.recv(2))
             )
-            wheelMovement = intBytes(conn.recv(1))
-            myMouse.absProcessEvents(absMousePos, wheelMovement)
+            wheel_movement = int_bytes(conn.recv(1))
+            MOUSE.abs_process_events(abs_mouse_pos, wheel_movement)
     else:
-        print("Invalid SigByte: {}".format(msgType))
-        emptyBuffer(conn)
+        print("Invalid SigByte: {}".format(msg_type))
+        empty_buffer(conn)
         return
 
 
-def connectionHandler(conn: Connection, connections: ConnMap) -> None:
+def connection_handler(conn: Connection, connections: ConnMap) -> None:
     while True:
-        if packetParser(conn) == b'':
+        if packet_parser(conn) == b'':
             # Disconnect detected
             break
     print("{} disconnected!".format(connections[conn]))
@@ -110,11 +110,11 @@ def connectionHandler(conn: Connection, connections: ConnMap) -> None:
     connections.pop(conn)
 
 
-initRuntimeDir()
-with Keyboard() as myKeyboard, \
-     Mouse() as myMouse, \
+init_runtime_dir()
+with Keyboard() as KEYBOARD, \
+     Mouse() as MOUSE, \
      socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.bind((listenAddr, listenPort))
+    s.bind((LISTEN_ADDR, LISTEN_PORT))
     s.listen()
     print("vmController - TCP Server Started!")
     connections: ConnMap = {}
@@ -124,17 +124,17 @@ with Keyboard() as myKeyboard, \
             conn, client_addr = s.accept()
             print("{} connected!".format(client_addr))
             connections[conn] = client_addr
-            myThread = Thread(
-                target=connectionHandler,
+            my_thread = Thread(
+                target=connection_handler,
                 args=(conn, connections,)
             )
-            myThread.start()
-            threads.append(myThread)
+            my_thread.start()
+            threads.append(my_thread)
     except KeyboardInterrupt:
         print(end='\r')
     finally:
         for conn in connections:
             conn.shutdown(socket.SHUT_RD)
-        for myThread in threads:
-            myThread.join()
+        for my_thread in threads:
+            my_thread.join()
         print("Goodbye!")

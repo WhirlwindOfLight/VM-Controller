@@ -12,18 +12,18 @@ class EventStruct(NamedTuple):
     value: int
 
 
-def getDevPath(name: str, vendorNo: Optional[str] = None, prodNo: Optional[str] = None) -> Optional[str]:  # noqa: E501
+def get_dev_path(name: str, vendorno: Optional[str] = None, prodno: Optional[str] = None) -> Optional[str]:  # noqa: E501
     for device in pyudev.Context().list_devices(subsystem="input"):
         try:
             assert device.parent is not None
             # Note: We have to search the parent for vendor, product, and name
             # because the devname is in a child of a main object,
             # and we need to be the child
-            if vendorNo is not None:
-                if vendorNo != device.parent.attributes.asstring("id/vendor"):
+            if vendorno is not None:
+                if vendorno != device.parent.attributes.asstring("id/vendor"):
                     continue
-            if prodNo is not None:
-                if prodNo != device.parent.attributes.asstring("id/product"):
+            if prodno is not None:
+                if prodno != device.parent.attributes.asstring("id/product"):
                     continue
             if name != device.parent.attributes.asstring("name"):
                 continue

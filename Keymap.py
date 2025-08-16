@@ -4,7 +4,7 @@ from HelperFunctions import Event
 
 key: Event
 val: int = 0x04
-myMap: dict[int, Event] = {}
+my_map: dict[int, Event] = {}
 
 # a-z is 0x04-0x1D
 for key in [
@@ -15,15 +15,15 @@ for key in [
     ev.KEY_U, ev.KEY_V, ev.KEY_W, ev.KEY_X, ev.KEY_Y,
     ev.KEY_Z
 ]:
-    myMap[val] = key
+    my_map[val] = key
     val += 1
 # val should now be 0x1E
 
 # 1-9 + 0 is 0x1E-0x27
 # The key codes are also in order, so a regular for loop can be used
-for keyNum in range(ev.KEY_1[1], ev.KEY_0[1] + 1):
-    key = (0x01, keyNum)
-    myMap[val] = key
+for key_num in range(ev.KEY_1[1], ev.KEY_0[1] + 1):
+    key = (0x01, key_num)
+    my_map[val] = key
     val += 1
 # val should now be 0x28
 
@@ -32,7 +32,7 @@ for key in [
     ev.KEY_ENTER, ev.KEY_ESC, ev.KEY_BACKSPACE,
     ev.KEY_TAB, ev.KEY_SPACE
 ]:
-    myMap[val] = key
+    my_map[val] = key
     val += 1
 # val should now be 0x2D
 
@@ -41,17 +41,17 @@ for key in [
     ev.KEY_MINUS, ev.KEY_EQUAL, ev.KEY_LEFTBRACE,
     ev.KEY_RIGHTBRACE, ev.KEY_BACKSLASH
 ]:
-    myMap[val] = key
+    my_map[val] = key
     val += 1
 val += 1  # Skip 0x32
 for key in [
     ev.KEY_SEMICOLON, ev.KEY_APOSTROPHE, ev.KEY_GRAVE,
     ev.KEY_COMMA, ev.KEY_DOT, ev.KEY_SLASH
 ]:
-    myMap[val] = key
+    my_map[val] = key
     val += 1
 # val should now be 0x39
-myMap[val] = ev.KEY_CAPSLOCK
+my_map[val] = ev.KEY_CAPSLOCK
 val += 1
 
 # Function keys in 0x3A-0x45
@@ -60,7 +60,7 @@ for key in [
     ev.KEY_F5, ev.KEY_F6, ev.KEY_F7, ev.KEY_F8,
     ev.KEY_F9, ev.KEY_F10, ev.KEY_F11, ev.KEY_F12
 ]:
-    myMap[val] = key
+    my_map[val] = key
     val += 1
 # val should now be 0x46
 
@@ -73,16 +73,18 @@ for key in [
     ev.KEY_PAGEDOWN, ev.KEY_RIGHT, ev.KEY_LEFT,
     ev.KEY_DOWN, ev.KEY_UP, ev.KEY_NUMLOCK
 ]:
-    myMap[val] = key
+    my_map[val] = key
     val += 1
 
 
-def Keymap(byte: int) -> Optional[Event]:
-    if byte in myMap:
-        return myMap[byte]
-    else:
-        return None
+class _Keymap:
+    events: list[Event]
+
+    def __init__(self) -> None:
+        self.events = list(my_map.values())
+
+    def __call__(self, byte: int) -> Optional[Event]:
+        return my_map.get(byte)
 
 
-def KeymapEvents() -> list[Event]:
-    return list(myMap.values())
+KEYMAP = _Keymap()
