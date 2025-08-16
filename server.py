@@ -22,12 +22,8 @@ MSG_SIZE = {
 }
 
 
-def int_bytes(bytes: bytes) -> int:
-    return int.from_bytes(bytes, "little", signed=True)
-
-
-def usigned_int_bytes(bytes: bytes) -> int:
-    return int.from_bytes(bytes, "little")
+def int_bytes(bytes: bytes, unsigned: bool = False) -> int:
+    return int.from_bytes(bytes, "little", signed=(not unsigned))
 
 
 def read_bit(byte: int) -> bool:
@@ -51,7 +47,7 @@ def packet_parser(conn: Connection) -> Optional[Literal[b""]]:
     if init_bytes == b'':
         return init_bytes
 
-    packet_size = usigned_int_bytes(init_bytes)
+    packet_size = int_bytes(init_bytes, unsigned=True)
     packet_size -= 1  # Ignore the SigByte
     if packet_size < 1:
         print("Err: Empty Packet Recieved!")
@@ -69,7 +65,7 @@ def packet_parser(conn: Connection) -> Optional[Literal[b""]]:
                 for _ in range(4):
                     mod_key_states.append(read_bit(mod_key_byte))
                     mod_key_byte >>= 1
-                reg_key_byte = usigned_int_bytes(conn.recv(1))
+                reg_key_byte = int_bytes(conn.recv(1), unsigned=True)
                 KEYBOARD.process_events(mod_key_states, reg_key_byte)
         case b'\x06':
             # RelMouse Handler
