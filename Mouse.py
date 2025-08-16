@@ -27,13 +27,13 @@ class Mouse:
         self.absMode = False  # False -> RelMouse; True -> AbsMouse
         self.absPos = [1, 1]
         self.virtAbsMouse = uinput.Device(
-            MOUSE_BUTTONS + MOUSE_WHEEL_EVENTS +
-            list(map(lambda x: x + ABS_RANGE, MOUSE_ABS_EVENTS)),
-            devName + ABSMOUSE_SUFFIX
+            events=(MOUSE_BUTTONS + MOUSE_WHEEL_EVENTS
+                    + list(map(lambda x: x + ABS_RANGE, MOUSE_ABS_EVENTS))),
+            name=(devName + ABSMOUSE_SUFFIX)
         )
         self.virtRelMouse = uinput.Device(
-            MOUSE_BUTTONS + MOUSE_WHEEL_EVENTS + MOUSE_REL_EVENTS,
-            devName + RELMOUSE_SUFFIX
+            events=(MOUSE_BUTTONS + MOUSE_WHEEL_EVENTS + MOUSE_REL_EVENTS),
+            name=(devName + RELMOUSE_SUFFIX)
         )
         os.symlink(getDevPath(devName + ABSMOUSE_SUFFIX), ABSMOUSE_LINK)
         os.symlink(getDevPath(devName + RELMOUSE_SUFFIX), RELMOUSE_LINK)

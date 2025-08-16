@@ -21,7 +21,8 @@ class Keyboard:
         self.modKeyStates = [False, False, False, False]
         self.regKey = None
         self.virtKeyboard = uinput.Device(
-            KeymapEvents() + KEYBOARD_MODKEYS, devName
+            events=(KeymapEvents() + KEYBOARD_MODKEYS),
+            name=devName
         )
         os.symlink(getDevPath(devName), KEYBOARD_LINK)
 
