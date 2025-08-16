@@ -1,16 +1,18 @@
 from os import path
+from typing import Optional, NamedTuple
 
 import pyudev
 
 
-def EventStruct(event, value):
-    return {
-        "event": event,
-        "value": value
-    }
+type Event = tuple[int, int]
 
 
-def getDevPath(name, vendorNo=None, prodNo=None):
+class EventStruct(NamedTuple):
+    event: Event
+    value: int
+
+
+def getDevPath(name: str, vendorNo: Optional[str] = None, prodNo: Optional[str] = None) -> Optional[str]:  # noqa: E501
     for device in pyudev.Context().list_devices(subsystem="input"):
         try:
             assert device.parent is not None

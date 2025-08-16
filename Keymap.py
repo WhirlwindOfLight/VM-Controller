@@ -1,7 +1,10 @@
+from typing import Optional
 from uinput import ev
+from HelperFunctions import Event
 
-val = 0x04
-myMap = {}
+key: Event
+val: int = 0x04
+myMap: dict[int, Event] = {}
 
 # a-z is 0x04-0x1D
 for key in [
@@ -74,12 +77,12 @@ for key in [
     val += 1
 
 
-def Keymap(byte):
+def Keymap(byte: int) -> Optional[Event]:
     if byte in myMap:
         return myMap[byte]
     else:
         return None
 
 
-def KeymapEvents():
+def KeymapEvents() -> list[Event]:
     return list(myMap.values())

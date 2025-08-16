@@ -2,29 +2,33 @@
 
 import socket
 from threading import Thread
+from typing import Optional, Literal
 
 from RuntimeDir import initRuntimeDir
 from Keyboard import Keyboard
 from Mouse import Mouse
 
 
+type Connection = socket.socket
+type ConnMap = dict[Connection, str]
+
 listenAddr = "0.0.0.0"
 listenPort = 19509
 
 
-def intBytes(bytes):
+def intBytes(bytes: bytes) -> int:
     return int.from_bytes(bytes, "little", signed=True)
 
 
-def unsignedIntBytes(bytes):
+def unsignedIntBytes(bytes: bytes) -> int:
     return int.from_bytes(bytes, "little")
 
 
-def readBit(byte):
+def readBit(byte: int) -> bool:
     return bool(byte & 1)
 
 
-def emptyBuffer(conn):
+def emptyBuffer(conn: Connection) -> None:
     try:
         while True:
             bytes = conn.recv(1024, socket.MSG_DONTWAIT)
@@ -34,7 +38,7 @@ def emptyBuffer(conn):
         return
 
 
-def packetParser(conn):
+def packetParser(conn: Connection) -> Optional[Literal[b""]]:
     global myKeyboard
     global myMouse
 
@@ -58,7 +62,7 @@ def packetParser(conn):
         numMsgs = packetSize // msgSize
         for i in range(numMsgs):
             modKeyByte = intBytes(conn.recv(1))
-            modKeyStates = []
+            modKeyStates: list[bool] = []
             for i in range(4):
                 modKeyStates.append(readBit(modKeyByte))
                 modKeyByte >>= 1
@@ -70,7 +74,7 @@ def packetParser(conn):
         numMsgs = packetSize // msgSize
         for i in range(numMsgs):
             buttonsByte = intBytes(conn.recv(1))
-            buttonStates = []
+            buttonStates: list[bool] = []
             for i in range(3):
                 buttonStates.append(readBit(buttonsByte))
                 buttonsByte >>= 1
@@ -96,7 +100,7 @@ def packetParser(conn):
         return
 
 
-def connectionHandler(conn, connections):
+def connectionHandler(conn: Connection, connections: ConnMap) -> None:
     while True:
         if packetParser(conn) == b'':
             # Disconnect detected
@@ -107,12 +111,14 @@ def connectionHandler(conn, connections):
 
 
 initRuntimeDir()
-with Keyboard() as myKeyboard, Mouse() as myMouse, socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+with Keyboard() as myKeyboard, \
+     Mouse() as myMouse, \
+     socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.bind((listenAddr, listenPort))
     s.listen()
     print("vmController - TCP Server Started!")
-    connections = {}
-    threads = []
+    connections: ConnMap = {}
+    threads: list[Thread] = []
     try:
         while True:
             conn, client_addr = s.accept()
