@@ -5,8 +5,8 @@ from typing import Self
 import uinput
 from uinput import ev
 
-from RuntimeDir import RUNTIME_DIR
-from HelperFunctions import EventStruct, Event, get_dev_path
+from runtime_dir import RUNTIME_DIR
+from helper_functions import EventStruct, Event, get_dev_path
 
 
 type IntPair = tuple[int, int]

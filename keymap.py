@@ -1,6 +1,6 @@
 from typing import Optional
 from uinput import ev
-from HelperFunctions import Event
+from helper_functions import Event
 
 key: Event
 val: int = 0x04

@@ -4,9 +4,9 @@ import socket
 from threading import Thread
 from typing import Optional, Literal
 
-from RuntimeDir import init_runtime_dir
-from Keyboard import Keyboard
-from Mouse import Mouse
+from runtime_dir import init_runtime_dir
+from keyboard import Keyboard
+from mouse import Mouse
 
 
 type Connection = socket.socket
