@@ -1,7 +1,8 @@
 from os import path, makedirs
+from os.path import expanduser
 
 
-RUNTIME_DIR = path.join("/run", "vmController")
+RUNTIME_DIR = path.join(expanduser("~/.local/state"), "vmController")
 
 
 def init_runtime_dir() -> None:
