@@ -25,6 +25,8 @@ class Keyboard:
             events=(KEYMAP.events + KEYBOARD_MODKEYS),
             name=dev_name
         )
+        if path.islink(KEYBOARD_LINK):
+            os.unlink(KEYBOARD_LINK)
         os.symlink(get_dev_path(dev_name), KEYBOARD_LINK)
 
     def __enter__(self) -> Self:

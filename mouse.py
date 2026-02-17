@@ -38,6 +38,9 @@ class Mouse:
             events=(MOUSE_BUTTONS + MOUSE_WHEEL_EVENTS + MOUSE_REL_EVENTS),
             name=(dev_name + RELMOUSE_SUFFIX)
         )
+        for link in [ABSMOUSE_LINK, RELMOUSE_LINK]:
+            if path.islink(link):
+                os.unlink(link)
         os.symlink(get_dev_path(dev_name + ABSMOUSE_SUFFIX), ABSMOUSE_LINK)
         os.symlink(get_dev_path(dev_name + RELMOUSE_SUFFIX), RELMOUSE_LINK)
 
