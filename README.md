@@ -1,5 +1,5 @@
 # VM-Controller
-This program is designed to create virtual input devices to control physical or virtual machines that take TCP input and convert it into keyboard and mouse signals. It was originally designed to respond to packets sent from [HardwareVNC](https://github.com/WhirlwindOfLight/HardwareVNC), but it can also be used in combination with [VM-HardwareForwarder](https://github.com/WhirlwindOfLight/VM-HardwareForwarder) to forward physical keyboard and mouse signals from one machine to another. This program is only designed for use on Linux, so instructions will assume you are on Linux.
+This program is designed to create virtual input devices (to control physical or virtual machines) that take TCP input and convert it into keyboard and mouse signals. It was originally designed to respond to packets sent from [HardwareVNC](https://github.com/WhirlwindOfLight/HardwareVNC), but it can also be used in combination with [VM-HardwareForwarder](https://github.com/WhirlwindOfLight/VM-HardwareForwarder) to forward physical keyboard and mouse signals from one machine to another. This program is only designed for use on Linux, so instructions will assume you are on Linux.
 
 ## Usage
 This program is not designed to be compiled or installed, but some stuff does need to be done on the first run that doesn't need to be done on every run.
