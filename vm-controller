@@ -2,5 +2,5 @@
 
 EXEC=server.py
 
-cd "$(dirname "$0")"  # Move to directory of this project
-.venv/bin/python $EXEC  # Run the program
+cd "$(dirname "$0")/src"  # Move to directory of this project
+../.venv/bin/python $EXEC  # Run the program
