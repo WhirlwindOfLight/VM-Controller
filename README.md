@@ -8,7 +8,7 @@ This program is not designed to be compiled or installed, but some stuff does ne
     * make
     * python ~3.12
 2. Navigate to where you want to store the program
-3. Clone the repository with `git clone https://github.com/WhirlwindOfLight/VM-Controller`
+3. Clone the repository with `git clone https://github.com/WhirlwindOfLight/VM-Controller.git`
 4. Enter the directory with `cd VM-Controller`
 5. Build the [virtual environment](https://peps.python.org/pep-0405/) with `make`
     * NOTE: If your Python version ever updates, you may need to rebuild your virtual environment! To do this, navigate back to this repository directory and run `make clean; make`
