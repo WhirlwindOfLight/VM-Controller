@@ -5,9 +5,9 @@ from typing import Self
 import uinput
 from uinput import ev
 
-from runtime_dir import RUNTIME_DIR
-from keymap import KEYMAP
-from helper_functions import EventStruct, Event, get_dev_path
+from vm_controller.runtime_dir import RUNTIME_DIR
+from vm_controller.keymap import KEYMAP
+from vm_controller.helper_functions import EventStruct, Event, get_dev_path
 
 
 KEYBOARD_LINK = path.join(RUNTIME_DIR, "devices", "Keyboard")

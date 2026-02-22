@@ -2,9 +2,9 @@ import socket
 from threading import Thread
 from typing import Optional, Literal
 
-from runtime_dir import init_runtime_dir
-from keyboard import Keyboard
-from mouse import Mouse
+from vm_controller.runtime_dir import init_runtime_dir
+from vm_controller.keyboard import Keyboard
+from vm_controller.mouse import Mouse
 
 
 type Connection = socket.socket
@@ -104,32 +104,35 @@ def connection_handler(conn: Connection, connections: ConnMap) -> None:
     conn.close()
     connections.pop(conn)
 
-
-init_runtime_dir()
-with Keyboard() as KEYBOARD, \
-     Mouse() as MOUSE, \
-     socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.bind((LISTEN_ADDR, LISTEN_PORT))
-    s.listen()
-    print("vmController - TCP Server Started!")
-    connections: ConnMap = {}
-    threads: list[Thread] = []
-    try:
-        while True:
-            conn, client_addr = s.accept()
-            print("{} connected!".format(client_addr))
-            connections[conn] = client_addr
-            my_thread = Thread(
-                target=connection_handler,
-                args=(conn, connections,)
-            )
-            my_thread.start()
-            threads.append(my_thread)
-    except KeyboardInterrupt:
-        print(end='\r')
-    finally:
-        for conn in connections:
-            conn.shutdown(socket.SHUT_RD)
-        for my_thread in threads:
-            my_thread.join()
-        print("Goodbye!")
+def run():
+    global KEYBOARD
+    global MOUSE
+    init_runtime_dir()
+    with Keyboard() as KEYBOARD, \
+        Mouse() as MOUSE, \
+        socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        
+        s.bind((LISTEN_ADDR, LISTEN_PORT))
+        s.listen()
+        print("vmController - TCP Server Started!")
+        connections: ConnMap = {}
+        threads: list[Thread] = []
+        try:
+            while True:
+                conn, client_addr = s.accept()
+                print("{} connected!".format(client_addr))
+                connections[conn] = client_addr
+                my_thread = Thread(
+                    target=connection_handler,
+                    args=(conn, connections,)
+                )
+                my_thread.start()
+                threads.append(my_thread)
+        except KeyboardInterrupt:
+            print(end='\r')
+        finally:
+            for conn in connections:
+                conn.shutdown(socket.SHUT_RD)
+            for my_thread in threads:
+                my_thread.join()
+            print("Goodbye!")
