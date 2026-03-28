@@ -9,9 +9,6 @@ from vm_controller.mouse import Mouse
 type Connection = socket.socket
 type ConnMap = dict[Connection, str]
 
-LISTEN_ADDR = "0.0.0.0"
-LISTEN_PORT = 19509
-
 MSG_SIZE = {
     b'\x05': 2,  # Keyboard
     b'\x06': 3,  # RelMouse
@@ -103,14 +100,14 @@ def connection_handler(conn: Connection, connections: ConnMap) -> None:
     conn.close()
     connections.pop(conn)
 
-def run():
+def run(listen_addr: str, listen_port: int):
     global KEYBOARD
     global MOUSE
     with Keyboard() as KEYBOARD, \
         Mouse() as MOUSE, \
         socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         
-        s.bind((LISTEN_ADDR, LISTEN_PORT))
+        s.bind((listen_addr, listen_port))
         s.listen()
         print("vmController - TCP Server Started!")
         connections: ConnMap = {}
