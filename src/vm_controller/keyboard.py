@@ -5,7 +5,7 @@ from typing import Self
 import uinput
 from uinput import ev
 
-from vm_controller.runtime_dir import RUNTIME_DIR
+from vm_controller import RUNTIME_DIR
 from vm_controller.keymap import KEYMAP
 from vm_controller.helper_functions import EventStruct, Event, get_dev_path
 

@@ -32,6 +32,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/tk-8.6.13-noxft_h366c992_103.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2025c-hc9c84f9_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_6.conda
+      - pypi: https://files.pythonhosted.org/packages/63/d7/97f7e3a6abb67d8080dd406fd4df842c2be0efaf712d1c899c32a075027c/platformdirs-4.9.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1d/58/f0ac92b19b3a9eda6a1d88d48bd17993d8a749600d981715b9be372ded5d/python-uinput-1.0.1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/2a/51/3dc0cd6498b24dea3cdeaed648568e3ca7454d41334d840b114156d7479f/pyudev-0.24.4-py3-none-any.whl
       - pypi: ./
@@ -237,6 +238,11 @@ packages:
   purls: []
   size: 3164551
   timestamp: 1769555830639
+- pypi: https://files.pythonhosted.org/packages/63/d7/97f7e3a6abb67d8080dd406fd4df842c2be0efaf712d1c899c32a075027c/platformdirs-4.9.4-py3-none-any.whl
+  name: platformdirs
+  version: 4.9.4
+  sha256: 68a9a4619a666ea6439f2ff250c12a853cd1cbd5158d258bd824a7df6be2f868
+  requires_python: '>=3.10'
 - conda: https://conda.anaconda.org/conda-forge/linux-64/python-3.14.3-h32b2ec7_101_cp314.conda
   build_number: 101
   sha256: cb0628c5f1732f889f53a877484da98f5a0e0f47326622671396fb4f2b0cd6bd
@@ -322,10 +328,11 @@ packages:
 - pypi: ./
   name: vm-controller
   version: 0.1.0
-  sha256: 21ab1f94b5137494af654957740a298a1e559f20598ff038799df47a99e5342a
+  sha256: 224635982ff1fa4b60fdf2f3420ccd152ea39e39cffe8bf84f9aa153662f9e37
   requires_dist:
   - python-uinput>=1.0.1,<2
   - pyudev>=0.24.4,<0.25
+  - platformdirs>=4.9.4,<5
   requires_python: '>=3.11'
 - conda: https://conda.anaconda.org/conda-forge/linux-64/zstd-1.5.7-hb78ec9c_6.conda
   sha256: 68f0206ca6e98fea941e5717cec780ed2873ffabc0e1ed34428c061e2c6268c7

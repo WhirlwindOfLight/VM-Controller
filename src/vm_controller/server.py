@@ -2,7 +2,6 @@ import socket
 from threading import Thread
 from typing import Optional, Literal
 
-from vm_controller.runtime_dir import init_runtime_dir
 from vm_controller.keyboard import Keyboard
 from vm_controller.mouse import Mouse
 
@@ -107,7 +106,6 @@ def connection_handler(conn: Connection, connections: ConnMap) -> None:
 def run():
     global KEYBOARD
     global MOUSE
-    init_runtime_dir()
     with Keyboard() as KEYBOARD, \
         Mouse() as MOUSE, \
         socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
