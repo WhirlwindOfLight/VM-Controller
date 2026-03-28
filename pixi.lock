@@ -322,7 +322,7 @@ packages:
 - pypi: ./
   name: vm-controller
   version: 0.1.0
-  sha256: 9304cbe97df4d4c82a74da5f46d9f16b271bf2968eb5f84e5993b55831002924
+  sha256: 21ab1f94b5137494af654957740a298a1e559f20598ff038799df47a99e5342a
   requires_dist:
   - python-uinput>=1.0.1,<2
   - pyudev>=0.24.4,<0.25
